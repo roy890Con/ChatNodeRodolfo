@@ -5,16 +5,19 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
 
-// Servir archivos estáticos desde la carpeta public
+// Límite de 50MB para soportar archivos
+const io = new Server(server, {
+  maxHttpBufferSize: 1e8
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
   console.log('Un usuario se ha conectado');
 
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
+  socket.on('chat message', (data) => {
+    io.emit('chat message', data);
   });
 
   socket.on('disconnect', () => {
